@@ -3,99 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Moodify 3D - AI Mood Detector</title>
-    
+    <title>Moodify Premium - AI Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
-    
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
 </head>
 <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-    <div class="bg-shape shape1"></div>
-    <div class="bg-shape shape2"></div>
-    <div class="bg-shape shape3"></div>
+    <div class="app-wrapper">
+        <div class="glass-container">
+            <header>
+                <h2 class="premium-logo">MOODIFY <span>PRO</span></h2>
+                <div class="status-dot"></div>
+            </header>
 
-    <div class="app-container" data-tilt data-tilt-glare data-tilt-max-glare="0.2" data-tilt-max="3" data-tilt-speed="400">
-        <header>
-            <h2 class="glow-text">✨ Moodify 3D</h2>
-            <button id="theme-toggle" class="btn-3d-circle">🌙</button>
-        </header>
-
-        <section id="home-screen" class="screen active">
-            <div class="hero">
-                <h1 class="glow-text">Eppudi irukinga innaiku?</h1>
-                <p>AI moolama unga mood kandupudiklam!</p>
-            </div>
-            <div class="button-group">
-                <button class="btn btn-3d primary" onclick="navigate('camera-screen')">
-                    <span class="btn-content">📷 Check via Camera</span>
-                </button>
-                <button class="btn btn-3d secondary" onclick="navigate('text-screen')">
-                    <span class="btn-content">✍️ Check via Text</span>
-                </button>
-                <button class="btn btn-3d outline" onclick="loadHistory()">
-                    <span class="btn-content">📊 View History</span>
-                </button>
-            </div>
-        </section>
-
-        <section id="camera-screen" class="screen">
-            <h3 class="glow-text">Face Emotion Detection</h3>
-            <div class="video-wrapper">
-                <div class="video-container">
-                    <video id="video" autoplay muted playsinline></video>
-                    </div>
-            </div>
-            <p id="cam-status" class="status-badge">AI Models Load aagala. Refresh pannunga.</p>
-            <button class="btn btn-3d outline" onclick="navigate('home-screen'); stopVideo();">
-                <span class="btn-content">⬅️ Back</span>
-            </button>
-        </section>
-
-        <section id="text-screen" class="screen">
-            <h3 class="glow-text">Express Yourself</h3>
-            <div class="input-wrapper">
-                <textarea id="mood-text" rows="5" placeholder="Unga feelings-a inga type pannunga..."></textarea>
-            </div>
-            <button class="btn btn-3d primary" onclick="analyzeText()">
-                <span class="btn-content">✨ Analyze Mood</span>
-            </button>
-            <button class="btn btn-3d outline" onclick="navigate('home-screen')">
-                <span class="btn-content">⬅️ Back</span>
-            </button>
-        </section>
-
-        <section id="result-screen" class="screen">
-            <h3 class="glow-text">Your Mood is...</h3>
-            <div class="result-card">
-                <h1 id="detected-mood" class="floating-emoji">Happy 😊</h1>
-            </div>
-            
-            <div class="suggestions 3d-box">
-                <h4>Suggestions for you:</h4>
-                <p id="quote" class="quote-text">"Keep smiling!"</p>
-                <div class="song-tip">
-                    <span id="song">🎵 Song: Happy by Pharrell Williams</span>
+            <section id="home-screen" class="screen active">
+                <div class="welcome-section">
+                    <h1 class="royal-text">Welcome, <span>User</span></h1>
+                    <p class="subtitle">Experience the future of emotion AI.</p>
                 </div>
-            </div>
-            <button class="btn btn-3d primary" onclick="navigate('home-screen')">
-                <span class="btn-content">🏠 Go Home</span>
-            </button>
-        </section>
+                
+                <div class="premium-grid">
+                    <div class="nav-card primary-card" onclick="navigate('camera-screen')">
+                        <div class="card-icon">📷</div>
+                        <span>Neural Vision</span>
+                    </div>
+                    <div class="nav-card secondary-card" onclick="navigate('text-screen')">
+                        <div class="card-icon">✍️</div>
+                        <span>Sentiment Analysis</span>
+                    </div>
+                    <div class="nav-card history-card" onclick="loadHistory()">
+                        <div class="card-icon">📊</div>
+                        <span>Insights</span>
+                    </div>
+                </div>
+            </section>
 
-        <section id="history-screen" class="screen">
-            <h3 class="glow-text">Mood History</h3>
-            <div class="chart-container 3d-box">
-                <canvas id="moodChart"></canvas>
-            </div>
-            <button class="btn btn-3d outline" onclick="navigate('home-screen')">
-                <span class="btn-content">⬅️ Back</span>
-            </button>
-        </section>
+            <section id="camera-screen" class="screen">
+                <div class="camera-frame">
+                    <div class="scanner-glow"></div>
+                    <video id="video" autoplay muted playsinline></video>
+                    <div class="corner tl"></div><div class="corner tr"></div>
+                    <div class="corner bl"></div><div class="corner br"></div>
+                </div>
+                <div class="processing-info">
+                    <span id="cam-status">Initializing Neural Models...</span>
+                </div>
+                <button class="btn-royal back-btn" onclick="navigate('home-screen'); stopVideo();">Return Home</button>
+            </section>
+
+            <section id="text-screen" class="screen">
+                <h3 class="glow-title">Deep Sentiment</h3>
+                <div class="premium-input-box">
+                    <textarea id="mood-text" placeholder="Share your thoughts..."></textarea>
+                </div>
+                <button class="btn-royal pulse" onclick="analyzeText()">Process Aura</button>
+                <button class="btn-ghost" onclick="navigate('home-screen')">Back</button>
+            </section>
+
+            <section id="result-screen" class="screen">
+                <div class="aura-display">
+                    <div class="aura-circle"></div>
+                    <h1 id="detected-mood">✨</h1>
+                </div>
+                <div class="result-info">
+                    <p id="quote"></p>
+                </div>
+                <button class="btn-royal" onclick="navigate('home-screen')">Finish</button>
+            </section>
+
+            <section id="history-screen" class="screen">
+                <h3 class="glow-title">Mood Analytics</h3>
+                <div class="chart-box">
+                    <canvas id="moodChart"></canvas>
+                </div>
+                <button class="btn-royal" onclick="navigate('home-screen')">Back</button>
+            </section>
+        </div>
     </div>
-
 </body>
 </html>
