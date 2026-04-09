@@ -1,277 +1,84 @@
-/* --- PREMIUM VARIABLE SYSTEM --- */
 :root {
-    --gold: #D4AF37;
-    --gold-glow: rgba(212, 175, 55, 0.4);
-    --neon-blue: #00f2ff;
-    --neon-glow: rgba(0, 242, 255, 0.4);
-    --bg-deep: #050505;
-    --card-glass: rgba(255, 255, 255, 0.03);
-    --border-glass: rgba(255, 255, 255, 0.08);
-    --font-main: 'Poppins', sans-serif;
-    --font-logo: 'Syncopate', sans-serif;
-    --font-tech: 'Orbitron', sans-serif;
+    --gold: #FFD700;
+    --royal: #6d28d9;
+    --glass: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.1);
 }
 
-/* --- RESET & GLOBAL STYLES --- */
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
 
 body {
-    background-color: var(--bg-deep);
-    color: #fff;
-    font-family: var(--font-main);
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    background: #050505; color: #fff;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; width: 100vw; overflow: hidden;
 }
 
-/* --- BACKGROUND LUXURY ELEMENTS --- */
-.luxury-bg {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-    background: radial-gradient(circle at 10% 10%, #1a0b2e 0%, transparent 40%),
-                radial-gradient(circle at 90% 90%, #0a1f2e 0%, transparent 40%);
+.royal-bg {
+    position: fixed; width: 100%; height: 100%; z-index: -1;
+    background: radial-gradient(circle at 0% 0%, #2e1065 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #1e1b4b 0%, transparent 50%);
 }
 
-.overlay-texture {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-    background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
-    opacity: 0.2; pointer-events: none;
+/* Alignment Fix: Removed hard height, added auto-fit */
+.app-shell {
+    width: 92%; max-width: 380px;
+    background: var(--glass); backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 30px;
+    display: flex; flex-direction: column;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    margin: 20px 0; /* Ensures it stays centered without waste space */
 }
 
-/* --- MAIN SHELL STRUCTURE --- */
-.main-wrapper {
-    width: 100%;
-    max-width: 420px;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
+header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.premium-logo { font-family: 'Syncopate', sans-serif; font-size: 0.8rem; letter-spacing: 3px; }
+.premium-logo span { color: var(--gold); }
+.dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 10px #ff4444; transition: 0.5s; }
+
+.screen { display: none; padding: 25px; flex-direction: column; gap: 20px; text-align: center; }
+.screen.active { display: flex; animation: fadeUp 0.4s ease-out; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+.luxury-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
+.welcome h2 { font-size: 1.8rem; }
+.welcome span { color: var(--gold); }
+
+.grid-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gold-card { 
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border); 
+    padding: 20px; border-radius: 18px; cursor: pointer; transition: 0.3s;
 }
+.gold-card:active { transform: scale(0.95); background: var(--glass); }
+.gold-card h3 { font-size: 0.65rem; letter-spacing: 1px; margin-top: 10px; }
+.gold-card.full { grid-column: span 2; }
 
-.premium-glass-shell {
-    width: 100%;
-    height: 90vh;
-    background: var(--card-glass);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--border-glass);
-    border-radius: 35px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02);
-    position: relative;
-    overflow: hidden;
+/* Camera Viewport */
+.camera-viewport { 
+    position: relative; width: 100%; aspect-ratio: 1/1; 
+    border-radius: 20px; overflow: hidden; background: #000;
 }
-
-/* --- HEADER DESIGN --- */
-.app-header {
-    padding: 25px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-glass);
-    z-index: 10;
-}
-
-.brand-section { display: flex; align-items: center; gap: 12px; }
-.ai-node {
-    width: 12px; height: 12px;
-    background: var(--neon-blue);
-    border-radius: 50%;
-    box-shadow: 0 0 15px var(--neon-blue);
-    animation: pulseNode 2s infinite ease-in-out;
-}
-
-.main-logo {
-    font-family: var(--font-logo);
-    font-size: 0.85rem;
-    letter-spacing: 4px;
-    color: #fff;
-}
-.accent-text { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-glow); }
-
-/* --- SCREEN TRANSITIONS --- */
-.screen {
-    display: none;
-    padding: 25px;
-    flex-direction: column;
-    height: 100%;
-    overflow-y: auto;
-    animation: screenEnter 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-}
-.screen.active { display: flex; }
-
-@keyframes screenEnter {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* --- HERO VISUALS --- */
-.hero-visual {
-    margin: 20px auto;
-    width: 140px; height: 140px;
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-}
-
-.neural-ring {
-    position: absolute; width: 100%; height: 100%;
-    border: 2px dashed var(--neon-blue);
-    border-radius: 50%;
-    animation: rotateRing 10s infinite linear;
-}
-
-.user-avatar-glow {
-    font-size: 3rem;
-    filter: drop-shadow(0 0 15px var(--neon-blue));
-}
-
-/* --- ACTION CARDS --- */
-.action-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.action-card {
-    position: relative;
-    padding: 25px 15px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border-glass);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: 0.4s;
-    overflow: hidden;
-}
-
-.action-card:hover {
-    background: rgba(255,255,255,0.06);
-    border-color: var(--neon-blue);
-    transform: translateY(-5px);
-}
-
-.action-card.full-width { grid-column: span 2; }
-
-.action-card .icon { font-size: 1.8rem; display: block; margin-bottom: 12px; }
-.action-card h3 { font-family: var(--font-tech); font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 5px; }
-.action-card p { font-size: 0.65rem; opacity: 0.5; }
-
-/* --- CAMERA VIEWPORT DESIGN --- */
-.viewport-outer {
-    margin: 20px auto;
-    padding: 10px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 25px;
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
-}
-
-.biometric-scanner {
-    width: 280px; height: 280px;
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    background: #000;
-}
-
 #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-
-.scan-bar-animation {
-    position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-    background: var(--neon-blue);
-    box-shadow: 0 0 15px var(--neon-blue);
-    animation: scanAnimation 3s infinite linear;
-    z-index: 5;
+.scanner-laser {
+    position: absolute; top: 0; width: 100%; height: 2px;
+    background: var(--gold); box-shadow: 0 0 15px var(--gold);
+    animation: scan 3s infinite linear;
 }
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-/* --- BUTTON SYSTEM --- */
-.btn-primary-glow {
-    width: 100%;
-    padding: 18px;
-    border-radius: 50px;
-    border: none;
-    background: linear-gradient(90deg, #00f2ff, #0062ff);
-    color: #fff;
-    font-family: var(--font-tech);
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-    cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3);
-    transition: 0.3s;
-    position: relative;
-    overflow: hidden;
+/* Royal Buttons */
+.royal-btn {
+    width: 100%; padding: 15px; border-radius: 50px; border: none;
+    background: linear-gradient(45deg, var(--gold), #b4941f);
+    color: #000; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px;
+    cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
+.ghost-btn { background: transparent; border: none; color: #fff; opacity: 0.5; font-size: 0.7rem; margin-top: 10px; }
 
-.btn-primary-glow:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0, 242, 255, 0.5); }
-.btn-primary-glow:active { transform: scale(0.97); }
-
-.btn-ghost-minimal {
-    margin-top: 15px;
-    background: transparent; border: none;
-    color: #fff; opacity: 0.5; font-size: 0.7rem; letter-spacing: 2px;
-    cursor: pointer; transition: 0.3s;
+/* Result Aura */
+.aura-glow {
+    width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--gold);
+    margin: 20px auto; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 30px var(--gold); animation: pulse 2s infinite;
 }
-.btn-ghost-minimal:hover { opacity: 1; letter-spacing: 4px; }
-
-/* --- RESULT PANEL DESIGN --- */
-.main-mood-panel {
-    margin: 30px auto;
-    position: relative;
-    width: 160px; height: 160px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
-
-.aura-circle {
-    position: absolute; width: 100%; height: 100%;
-    border: 2px solid var(--gold); border-radius: 50%;
-    box-shadow: 0 0 30px var(--gold-glow);
-    animation: auraPulse 3s infinite ease-in-out;
-}
-
-.floating-emoji { font-size: 4.5rem; z-index: 2; margin-bottom: 5px; }
-#mood-label { font-family: var(--font-tech); font-size: 1rem; color: var(--gold); letter-spacing: 4px; }
-
-/* --- STATS DASHBOARD --- */
-.emotion-breakdown-panel {
-    margin-top: 20px;
-    padding: 20px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 20px;
-    border: 1px solid var(--border-glass);
-}
-
-.emotion-breakdown-panel h4 { font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px; margin-bottom: 15px; }
-
-.stats-list { display: flex; flex-direction: column; gap: 12px; }
-
-.stat-row { display: flex; flex-direction: column; gap: 6px; }
-.stat-info { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; }
-.stat-bar-outer { width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-.stat-bar-inner { height: 100%; background: var(--neon-blue); width: 0%; transition: width 1s ease-out; }
-
-/* --- INPUT FIELD --- */
-textarea {
-    width: 100%; height: 160px;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid var(--border-glass);
-    border-radius: 20px;
-    color: #fff; padding: 20px;
-    font-size: 0.95rem; line-height: 1.6;
-    resize: none; transition: 0.4s;
-}
-textarea:focus { outline: none; border-color: var(--neon-blue); background: rgba(0,0,0,0.5); }
-
-/* --- KEYFRAME ANIMATIONS --- */
-@keyframes scanAnimation { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
-@keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes pulseNode { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } }
-@keyframes auraPulse { 0%, 100% { transform: scale(1); border-color: var(--gold); } 50% { transform: scale(1.1); border-color: #fff; } }
-
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+#main-emoji { font-size: 3.5rem; margin-top: -105px; display: block; }
