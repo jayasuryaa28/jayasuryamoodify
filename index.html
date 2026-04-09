@@ -3,69 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MOODIFY ELITE | Neural AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>MOODIFY ELITE V3 | Advanced Neural Emotion AI</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
 </head>
 <body>
-    <div class="royal-bg"></div>
-    <div class="app-shell">
-        <header>
-            <h1 class="premium-logo">MOODIFY <span>ELITE</span></h1>
-            <div id="status-indicator" class="dot"></div>
-        </header>
 
-        <section id="home-screen" class="screen active">
-            <div class="luxury-card welcome">
-                <h2>Neural <span>Link</span></h2>
-                <p>Advanced emotion diagnostics engine</p>
-            </div>
-            <div class="grid-nav">
-                <div class="gold-card" onclick="navigate('camera-screen')">
-                    <span class="icon">📷</span>
-                    <h3>VISION SCAN</h3>
-                </div>
-                <div class="gold-card" onclick="navigate('text-screen')">
-                    <span class="icon">✍️</span>
-                    <h3>SEMANTIC</h3>
-                </div>
-                <div class="gold-card full" onclick="loadHistory()">
-                    <span class="icon">📊</span>
-                    <h3>NEURAL HISTORY</h3>
-                </div>
-            </div>
-        </section>
-
-        <section id="camera-screen" class="screen">
-            <div class="camera-viewport">
-                <video id="video" autoplay muted playsinline></video>
-                <div class="scanner-laser"></div>
-            </div>
-            <div class="ui-controls">
-                <p id="cam-status">Synchronizing Neural models...</p>
-                <button id="snap-btn" class="royal-btn ripple" onclick="captureAndAnalyze()">ANALYZE AURA</button>
-                <button class="ghost-btn" onclick="navigate('home-screen'); stopVideo();">Cancel</button>
-            </div>
-        </section>
-
-        <section id="result-screen" class="screen">
-            <div class="luxury-card result-box">
-                <div class="aura-glow" id="aura-ring"></div>
-                <h1 id="main-emoji">✨</h1>
-                <h2 id="mood-label">SCANNING...</h2>
-            </div>
-            <div class="stats-panel" id="emotion-stats"></div>
-            <button class="royal-btn" onclick="navigate('home-screen')">NEW SCAN</button>
-        </section>
-
-        <section id="text-screen" class="screen">
-            <textarea id="mood-text" placeholder="Enter behavioral data..."></textarea>
-            <button class="royal-btn" onclick="analyzeText()">EXTRACT</button>
-            <button class="ghost-btn" onclick="navigate('home-screen')">Back</button>
-        </section>
+    <div class="luxury-background">
+        <div class="floating-orb orb-gold"></div>
+        <div class="floating-orb orb-purple"></div>
+        <div class="grid-overlay"></div>
     </div>
+
+    <main class="app-shell">
+        <div class="glass-core">
+            
+            <header class="main-header">
+                <div class="brand-identity">
+                    <div class="neural-pulse"></div>
+                    <h1 class="logo-text">MOODIFY <span class="gold-span">ELITE</span></h1>
+                </div>
+                <div class="system-meta">
+                    <div id="neural-link-status" class="status-badge">NEURAL LINK: OFFLINE</div>
+                    <div class="theme-switch">✨</div>
+                </div>
+            </header>
+
+            <section id="home-screen" class="screen active">
+                <div class="hero-visual-container">
+                    <div class="outer-ring"></div>
+                    <div class="inner-core">
+                        <span class="user-avatar">🧬</span>
+                    </div>
+                </div>
+
+                <div class="header-content">
+                    <h2 class="title-primary">Neural <span class="accent-gold">Diagnostics</span></h2>
+                    <p class="description">Activate biometric vision or semantic analysis to extract emotional data.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="nav-tile primary-tile" onclick="navigate('camera-screen')">
+                        <div class="tile-blur"></div>
+                        <div class="tile-content">
+                            <i class="tile-icon">📷</i>
+                            <h3>VISION SCAN</h3>
+                            <p>Snapshot Extraction</p>
+                        </div>
+                    </div>
+
+                    <div class="nav-tile secondary-tile" onclick="navigate('text-screen')">
+                        <div class="tile-blur"></div>
+                        <div class="tile-content">
+                            <i class="tile-icon">✍️</i>
+                            <h3>SEMANTIC SCAN</h3>
+                            <p>Text Logic Engine</p>
+                        </div>
+                    </div>
+
+                    <div class="nav-tile full-tile" onclick="loadHistory()">
+                        <div class="tile-content">
+                            <i class="tile-icon">📊</i>
+                            <h3>NEURAL ARCHIVE DATABASE</h3>
+                            <p>Access historical biometric logs</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <footer class="footer-note">
+                    <p>Secured by AES-256 Neural Encryption</p>
+                </footer>
+            </section>
+
+            <section id="camera-screen" class="screen">
+                <div class="viewport-header">
+                    <h3>BIOMETRIC <span class="neon-text">VIEWPORT</span></h3>
+                    <p id="cam-info">Syncing with hardware...</p>
+                </div>
+
+                <div class="camera-stage">
+                    <div class="scanner-frame">
+                        <div class="corners">
+                            <span class="c tl"></span><span class="c tr"></span>
+                            <span class="c bl"></span><span class="c br"></span>
+                        </div>
+                        <div class="laser-line"></div>
+                        <video id="video" autoplay muted playsinline></video>
+                    </div>
+                </div>
+
+                <div class="capture-controls">
+                    <button id="capture-trigger" class="btn-royal-gold" onclick="captureAndAnalyze()">
+                        <span class="btn-shine"></span>
+                        <span class="btn-label">ANALYZE AURA</span>
+                    </button>
+                    <button class="btn-minimal" onclick="navigate('home-screen'); stopVideo();">TERMINATE LINK</button>
+                </div>
+            </section>
+
+            <section id="result-screen" class="screen">
+                <div class="report-header">
+                    <h3>NEURAL <span class="gold-text">REPORT</span></h3>
+                </div>
+
+                <div class="analysis-dashboard">
+                    <div class="mood-vortex">
+                        <div class="vortex-ring" id="vortex-effect"></div>
+                        <h1 id="result-emoji" class="floating-emoji">🔮</h1>
+                        <h2 id="result-label">PROCESSING</h2>
+                    </div>
+
+                    <div class="metrics-container">
+                        <h4 class="label-tech">Expression Variance Dashboard</h4>
+                        <div id="emotions-breakdown" class="metrics-list">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="ai-insight-box">
+                    <div class="insight-label">AI INSIGHT</div>
+                    <p id="mood-suggestion">Analyzing neural patterns for suggestions...</p>
+                </div>
+
+                <div class="result-navigation">
+                    <button class="btn-royal-gold" onclick="navigate('home-screen')">NEW SCAN</button>
+                    <button class="btn-outline" onclick="exportData()">EXPORT LOGS</button>
+                </div>
+            </section>
+
+            <section id="text-screen" class="screen">
+                <div class="text-header">
+                    <h3>SEMANTIC <span class="gold-text">ENGINE</span></h3>
+                </div>
+
+                <div class="input-shell">
+                    <textarea id="text-input" placeholder="Input behavioral data or daily reflections for semantic extraction..."></textarea>
+                    <div class="focus-glow"></div>
+                </div>
+
+                <div class="input-actions">
+                    <button class="btn-royal-gold" onclick="analyzeText()">EXTRACT DATA</button>
+                    <button class="btn-minimal" onclick="navigate('home-screen')">CANCEL</button>
+                </div>
+            </section>
+
+            <section id="history-screen" class="screen">
+                <div class="archive-header">
+                    <h3>NEURAL <span class="gold-text">ARCHIVE</span></h3>
+                </div>
+
+                <div class="chart-vault">
+                    <canvas id="moodChart"></canvas>
+                </div>
+
+                <div class="logs-scroller" id="logs-list">
+                    </div>
+
+                <button class="btn-royal-gold" onclick="navigate('home-screen')">RETURN TO GATEWAY</button>
+            </section>
+
+        </div>
+    </main>
+
+    <canvas id="snapshot-canvas" style="display:none;"></canvas>
+
 </body>
 </html>
