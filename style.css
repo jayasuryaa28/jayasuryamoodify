@@ -1,163 +1,184 @@
-/* --- 3D & Modern UI Variables --- */
-:root {
-    --bg-main: #0f172a;
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --text-color: #ffffff;
-    --primary: #8b5cf6;
-    --primary-dark: #6d28d9;
-    --secondary: #0ea5e9;
-    --secondary-dark: #0369a1;
-    --outline: #475569;
-    --outline-dark: #1e293b;
-    --shadow-3d: rgba(0, 0, 0, 0.5);
-    --glow: 0 0 20px rgba(139, 92, 246, 0.5);
-}
+let currentStream = null;
+let chartInstance = null;
+let intervalId = null; // Store interval ID for clearing
 
-[data-theme="light"] {
-    --bg-main: #f1f5f9;
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --text-color: #1e293b;
-    --primary: #a855f7;
-    --primary-dark: #7e22ce;
-    --secondary: #06b6d4;
-    --secondary-dark: #0891b2;
-    --outline: #e2e8f0;
-    --outline-dark: #cbd5e1;
-    --shadow-3d: rgba(0, 0, 0, 0.15);
-    --glow: 0 0 20px rgba(168, 85, 247, 0.3);
-}
+// Suggestions Dictionary
+const moodData = {
+    happy: { emoji: '😊', quote: 'Semma! Ithe mathiri always happy ah irunga!', song: '🎵 Pharrell Williams - Happy' },
+    sad: { emoji: '😢', quote: 'Kavala padathinga, ellam seri aagidum.', song: '🎵 Anirudh - Life of Pazham' },
+    angry: { emoji: '😠', quote: 'Konjam relax pannunga, thanni kudinga.', song: '🎵 Yuvan Shankar Raja - Relaxing BGM' },
+    neutral: { emoji: '😐', quote: 'Amaidhiya irukarthum nallathu than.', song: '🎵 Lofi Chill Beats' }
+};
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif; }
+// Navigation
+function navigate(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    
+    // Clear any previous interval if we navigate away from camera
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+    }
 
-body { 
-    background-color: var(--bg-main); 
-    color: var(--text-color); 
-    display: flex; justify-content: center; align-items: center; 
-    min-height: 100vh; overflow: hidden; perspective: 1000px; 
-    transition: background 0.5s ease;
-}
-
-/* Mobile Friendly Body - Critical Fix for mobile browser behavior */
-@media only screen and (max-width: 600px) {
-    body {
-        align-items: flex-start;
-        padding-top: 10px;
+    if (screenId === 'camera-screen') {
+        startVideo();
+    } else {
+        stopVideo(); // Ensure video stops when not on camera screen
     }
 }
 
-/* --- Background 3D Floating Shapes --- */
-.bg-shape { position: absolute; border-radius: 50%; filter: blur(60px); z-index: -1; animation: float 10s infinite alternate; }
-.shape1 { width: 300px; height: 300px; background: #8b5cf6; top: -50px; left: -50px; }
-.shape2 { width: 400px; height: 400px; background: #0ea5e9; bottom: -100px; right: -50px; animation-delay: 2s; }
-.shape3 { width: 200px; height: 200px; background: #ec4899; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: 4s; }
+// Theme Toggle (3D style)
+document.getElementById('theme-toggle').addEventListener('click', () => {
+    const body = document.body;
+    if (body.getAttribute('data-theme') === 'light') {
+        body.removeAttribute('data-theme');
+        document.getElementById('theme-toggle').innerText = '🌙';
+    } else {
+        body.setAttribute('data-theme', 'light');
+        document.getElementById('theme-toggle').innerText = '☀️';
+    }
+});
 
-@keyframes float { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-30px) scale(1.1); } }
-
-/* --- 3D Glassmorphism Main App Card --- */
-.app-container { 
-    width: 100%; max-width: 420px; height: 90vh; 
-    background: var(--glass-bg); 
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border); 
-    border-radius: 24px; 
-    box-shadow: 0 25px 45px rgba(0,0,0,0.2), inset 0 0 15px rgba(255,255,255,0.05); 
-    display: flex; flex-direction: column; overflow: hidden; 
-    transform-style: preserve-3d; /* Allows inner elements to pop out */
-}
-
-/* Mobile Card Alignment Fix - Critical Fix to stop it from going full vertical */
-@media only screen and (max-width: 600px) {
-    .app-container {
-        height: auto;
-        min-height: 85vh;
-        max-height: 95vh;
-        margin-bottom: 20px;
+// Load Face API Models - PATH CORRECTED FOR GITHUB
+// GitHub-la models folder unga repo kulla models/ shard1, manifest nu irukka nu parunga. Path `./models` thaan correct.
+async function loadModels() {
+    console.log("Loading AI models...");
+    try {
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+            faceapi.nets.faceExpressionNet.loadFromUri('./models')
+        ]);
+        console.log('FaceAPI Models Loaded!');
+        document.getElementById('cam-status').innerText = 'Models Loaded. Face-a pakkathula vanga.';
+    } catch (err) {
+        console.error("Models load aagala. Folder allathu path check pannunga:", err);
+        document.getElementById('cam-status').innerText = 'Models Load aagala. Refresh pannunga.';
     }
 }
 
-/* Header */
-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--glass-border); transform: translateZ(30px); }
-.glow-text { text-shadow: var(--glow); font-weight: 700; letter-spacing: 1px; }
+// Start models loading on page load
+loadModels();
 
-/* Screens (3D slide in) */
-.screen { display: none; padding: 20px; flex-direction: column; gap: 15px; text-align: center; height: 100%; overflow-y: auto; transform-style: preserve-3d; }
-.screen.active { display: flex; animation: slideIn3D 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-@keyframes slideIn3D { from { opacity: 0; transform: translateY(40px) rotateX(-10deg) translateZ(-50px); } to { opacity: 1; transform: translateY(0) rotateX(0) translateZ(20px); } }
-
-/* Hero Text Fixes for Mobile */
-.hero h1 { font-size: 1.8rem; margin-bottom: 5px; }
-.hero p { font-size: 0.9rem; color: var(--text-color); opacity: 0.8; }
-@media only screen and (max-width: 420px) {
-    .hero h1 { font-size: 1.5rem; }
-    .hero p { font-size: 0.8rem; }
+// Camera Logic - Optimized for Mobile
+async function startVideo() {
+    const video = document.getElementById('video');
+    document.getElementById('cam-status').innerText = 'Starting camera...';
+    try {
+        //facingMode: "user" forces front camera on mobile
+        currentStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "user" } 
+        });
+        video.srcObject = currentStream;
+        document.getElementById('cam-status').innerText = 'Face-a pakkathula vanga...';
+        
+        video.addEventListener('play', () => {
+            // Use 1500ms for mobile processing delay
+            intervalId = setInterval(async () => {
+                if(document.getElementById('camera-screen').classList.contains('active')) {
+                    const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+                    if (detections) {
+                        const mood = Object.keys(detections.expressions).reduce((a, b) => detections.expressions[a] > detections.expressions[b] ? a : b);
+                        
+                        // Valid mood confirm aachu na mattum show pannalam
+                        if (moodData[mood]) {
+                            clearInterval(intervalId);
+                            intervalId = null;
+                            stopVideo();
+                            saveAndShowResult(mood, 'camera');
+                        }
+                    }
+                } else {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+            }, 1500);
+        });
+    } catch (err) {
+        console.error("Camera Error:", err);
+        document.getElementById('cam-status').innerText = 'Camera permission kedaikala allathu Requested device not found (NotFoundError). Device and permissions check pannunga.';
+    }
 }
 
-/* --- 3D Push Buttons --- */
-.button-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; transform: translateZ(40px); width: 100%; }
-
-.btn-3d {
-    appearance: none; background: transparent; border: none; cursor: pointer;
-    position: relative; padding: 0; outline: none; border-radius: 12px;
-    transform: translateZ(20px); transition: transform 0.1s;
-    width: 100%;
-}
-.btn-content {
-    display: flex; align-items: center; justify-content: center;
-    padding: 12px 15px; border-radius: 12px; font-size: 1rem; font-weight: bold;
-    color: white; transform: translateY(-5px); transition: transform 0.1s cubic-bezier(0.3, 0.7, 0.4, 1);
-    white-space: nowrap; /* Prevent button text wrap */
+function stopVideo() {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
 }
 
-/* Fix emoji image sizes and alignment within buttons */
-.btn-content img {
-    max-height: 1.2rem;
-    max-width: 1.2rem;
-    margin-right: 8px; /* Correct gap */
-    display: inline-block;
+// Text Sentiment Logic (Client-side)
+function analyzeText() {
+    const text = document.getElementById('mood-text').value.toLowerCase();
+    if (!text) return alert('Edhavathu type pannunga bro/sis!');
+    
+    const positiveWords = ['happy', 'super', 'good', 'great', 'awesome', 'jolly', 'nalla', 'nalladhu'];
+    const negativeWords = ['sad', 'bad', 'angry', 'kovam', 'depressed', 'sogam', 'worst', 'mosam'];
+    
+    let score = 0;
+    const words = text.split(/\W+/);
+    
+    words.forEach(word => {
+        if (positiveWords.includes(word)) score++;
+        if (negativeWords.includes(word)) score--;
+    });
+
+    let detectedMood = 'neutral';
+    if (score > 0) detectedMood = 'happy';
+    if (score < 0) detectedMood = 'sad';
+    
+    saveAndShowResult(detectedMood, 'text');
 }
 
-/* Button Colors & 3D Depth */
-.btn.primary { background: var(--primary-dark); box-shadow: 0 5px 0 var(--primary-dark), 0 8px 15px var(--shadow-3d); }
-.btn.primary .btn-content { background: var(--primary); }
+// Save & Show Result (Using LocalStorage)
+function saveAndShowResult(moodStr, source) {
+    let mood = moodStr === 'happy' ? 'happy' : (moodStr === 'sad' ? 'sad' : (moodStr === 'angry' ? 'angry' : 'neutral'));
+    
+    // Save to LocalStorage
+    let history = JSON.parse(localStorage.getItem('moodAppHistory')) || [];
+    history.push({ date: new Date().toLocaleDateString(), mood: mood });
+    localStorage.setItem('moodAppHistory', JSON.stringify(history));
 
-.btn.secondary { background: var(--secondary-dark); box-shadow: 0 5px 0 var(--secondary-dark), 0 8px 15px var(--shadow-3d); }
-.btn.secondary .btn-content { background: var(--secondary); }
-
-.btn.outline { background: var(--outline-dark); box-shadow: 0 5px 0 var(--outline-dark), 0 8px 15px var(--shadow-3d); }
-.btn.outline .btn-content { background: var(--outline); border: 1.5px solid var(--glass-border); color: var(--text-color); }
-
-/* Button Push Animation */
-.btn-3d:active .btn-content { transform: translateY(-1px); }
-.btn-3d:active { box-shadow: 0 1px 0 transparent, 0 3px 8px var(--shadow-3d); transform: translateY(3px) translateZ(20px); }
-
-/* Theme Toggle Button */
-.btn-3d-circle { background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 8px; border-radius: 50%; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 10px var(--shadow-3d); transition: 0.3s; }
-.btn-3d-circle:active { transform: scale(0.9); }
-
-/* --- Inputs & Video Box (Inset 3D) --- */
-textarea { 
-    width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); 
-    background: rgba(0,0,0,0.2); color: var(--text-color); font-size: 0.9rem;
-    box-shadow: inset 0 3px 8px rgba(0,0,0,0.3); resize: none; transition: 0.3s;
+    const info = moodData[mood];
+    document.getElementById('detected-mood').innerText = `${mood.toUpperCase()} ${info.emoji}`;
+    document.getElementById('quote').innerText = `"${info.quote}"`;
+    document.getElementById('song').innerText = info.song;
+    
+    navigate('result-screen');
 }
-textarea:focus { outline: none; border-color: var(--primary); box-shadow: inset 0 3px 8px rgba(0,0,0,0.3), 0 0 12px rgba(139, 92, 246, 0.4); }
-[data-theme="light"] textarea { background: rgba(255,255,255,0.5); box-shadow: inset 0 3px 8px rgba(0,0,0,0.05); }
 
-.video-wrapper { padding: 8px; background: rgba(255,255,255,0.05); border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); transform: translateZ(30px); width: 100%; max-width: 300px; margin: 0 auto; }
-.video-container { border-radius: 12px; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; height: auto; aspect-ratio: 1 / 1; box-shadow: inset 0 0 15px rgba(0,0,0,1); }
-#video { object-fit: cover; border-radius: 12px; width: 100%; height: 100%; }
+// Chart.js History Logic
+function loadHistory() {
+    navigate('history-screen');
+    let history = JSON.parse(localStorage.getItem('moodAppHistory')) || [];
+    
+    const moodCounts = { happy: 0, sad: 0, angry: 0, neutral: 0 };
+    history.forEach(item => { if(moodCounts[item.mood] !== undefined) moodCounts[item.mood]++; });
 
-.status-badge { background: rgba(0,0,0,0.4); padding: 6px 12px; border-radius: 15px; font-size: 0.8rem; display: inline-block; transform: translateZ(20px); border: 1px solid var(--glass-border); }
-
-/* --- Result Screen & Hover Effects --- */
-.floating-emoji { font-size: 2.5rem; animation: floatEmoji 3s ease-in-out infinite; text-shadow: var(--glow); margin: 15px 0; transform: translateZ(50px); }
-@keyframes floatEmoji { 0%, 100% { transform: translateY(0) translateZ(50px) scale(1); } 50% { transform: translateY(-10px) translateZ(60px) scale(1.1); } }
-
-.3d-box { background: var(--glass-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: 0 8px 20px rgba(0,0,0,0.2); transform: translateZ(25px); transition: transform 0.3s ease; width: 100%; }
-.3d-box:hover { transform: translateZ(40px); }
-.quote-text { font-size: 1rem; font-style: italic; color: var(--primary); margin-bottom: 8px; font-weight: 600; }
-.song-tip { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; display: inline-block; font-size: 0.8rem; }
-[data-theme="light"] .song-tip { background: rgba(255,255,255,0.5); }
-.chart-container { width: 100%; max-width: 300px; margin: 0 auto; }"light"] .song-tip { background: rgba(255,255,255,0.5); }
+    const ctx = document.getElementById('moodChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+    
+    chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Happy', 'Sad', 'Angry', 'Neutral'],
+            datasets: [{
+                data: [moodCounts.happy, moodCounts.sad, moodCounts.angry, moodCounts.neutral],
+                backgroundColor: ['#8b5cf6', '#0ea5e9', '#ef4444', '#94a3b8'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: 'white'
+                    }
+                }
+            }
+        }
+    });
+}
