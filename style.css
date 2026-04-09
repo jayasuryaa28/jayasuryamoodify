@@ -1,184 +1,112 @@
-let currentStream = null;
-let chartInstance = null;
-let intervalId = null; // Store interval ID for clearing
-
-// Suggestions Dictionary
-const moodData = {
-    happy: { emoji: '😊', quote: 'Semma! Ithe mathiri always happy ah irunga!', song: '🎵 Pharrell Williams - Happy' },
-    sad: { emoji: '😢', quote: 'Kavala padathinga, ellam seri aagidum.', song: '🎵 Anirudh - Life of Pazham' },
-    angry: { emoji: '😠', quote: 'Konjam relax pannunga, thanni kudinga.', song: '🎵 Yuvan Shankar Raja - Relaxing BGM' },
-    neutral: { emoji: '😐', quote: 'Amaidhiya irukarthum nallathu than.', song: '🎵 Lofi Chill Beats' }
-};
-
-// Navigation
-function navigate(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    
-    // Clear any previous interval if we navigate away from camera
-    if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-    }
-
-    if (screenId === 'camera-screen') {
-        startVideo();
-    } else {
-        stopVideo(); // Ensure video stops when not on camera screen
-    }
+:root {
+    --gold: #FFD700;
+    --royal-purple: #6a11cb;
+    --neon-blue: #2575fc;
+    --bg-dark: #050505;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
 }
 
-// Theme Toggle (3D style)
-document.getElementById('theme-toggle').addEventListener('click', () => {
-    const body = document.body;
-    if (body.getAttribute('data-theme') === 'light') {
-        body.removeAttribute('data-theme');
-        document.getElementById('theme-toggle').innerText = '🌙';
-    } else {
-        body.setAttribute('data-theme', 'light');
-        document.getElementById('theme-toggle').innerText = '☀️';
-    }
-});
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-// Load Face API Models - PATH CORRECTED FOR GITHUB
-// GitHub-la models folder unga repo kulla models/ shard1, manifest nu irukka nu parunga. Path `./models` thaan correct.
-async function loadModels() {
-    console.log("Loading AI models...");
-    try {
-        await Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
-            faceapi.nets.faceExpressionNet.loadFromUri('./models')
-        ]);
-        console.log('FaceAPI Models Loaded!');
-        document.getElementById('cam-status').innerText = 'Models Loaded. Face-a pakkathula vanga.';
-    } catch (err) {
-        console.error("Models load aagala. Folder allathu path check pannunga:", err);
-        document.getElementById('cam-status').innerText = 'Models Load aagala. Refresh pannunga.';
-    }
+body { 
+    background-color: var(--bg-dark); 
+    color: white; 
+    font-family: 'Poppins', sans-serif;
+    height: 100vh; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
 }
 
-// Start models loading on page load
-loadModels();
+/* Luxury Orbs */
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); z-index: -1; animation: move 20s infinite alternate; }
+.orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, var(--royal-purple), transparent); top: -10%; left: -10%; }
+.orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, var(--neon-blue), transparent); bottom: -10%; right: -10%; }
 
-// Camera Logic - Optimized for Mobile
-async function startVideo() {
-    const video = document.getElementById('video');
-    document.getElementById('cam-status').innerText = 'Starting camera...';
-    try {
-        //facingMode: "user" forces front camera on mobile
-        currentStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: "user" } 
-        });
-        video.srcObject = currentStream;
-        document.getElementById('cam-status').innerText = 'Face-a pakkathula vanga...';
-        
-        video.addEventListener('play', () => {
-            // Use 1500ms for mobile processing delay
-            intervalId = setInterval(async () => {
-                if(document.getElementById('camera-screen').classList.contains('active')) {
-                    const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
-                    if (detections) {
-                        const mood = Object.keys(detections.expressions).reduce((a, b) => detections.expressions[a] > detections.expressions[b] ? a : b);
-                        
-                        // Valid mood confirm aachu na mattum show pannalam
-                        if (moodData[mood]) {
-                            clearInterval(intervalId);
-                            intervalId = null;
-                            stopVideo();
-                            saveAndShowResult(mood, 'camera');
-                        }
-                    }
-                } else {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-            }, 1500);
-        });
-    } catch (err) {
-        console.error("Camera Error:", err);
-        document.getElementById('cam-status').innerText = 'Camera permission kedaikala allathu Requested device not found (NotFoundError). Device and permissions check pannunga.';
-    }
+@keyframes move { from { transform: translate(0,0); } to { transform: translate(50px, 50px); } }
+
+/* App Wrapper */
+.app-wrapper { width: 100%; max-width: 400px; height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+.glass-container {
+    width: 100%; height: 85vh;
+    background: var(--glass);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    display: flex; flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    position: relative; overflow: hidden;
 }
 
-function stopVideo() {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-        currentStream = null;
-    }
+/* Header */
+header { padding: 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); }
+.premium-logo { font-family: 'Syncopate', sans-serif; font-size: 1.2rem; letter-spacing: 2px; }
+.premium-logo span { color: var(--gold); }
+.status-dot { width: 10px; height: 10px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
+
+/* Screens */
+.screen { display: none; padding: 30px; flex-direction: column; height: 100%; animation: fadeUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+.screen.active { display: flex; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Royal Text */
+.royal-text { font-size: 2rem; font-weight: 300; margin-bottom: 5px; }
+.royal-text span { color: var(--gold); font-weight: 700; display: block; }
+.subtitle { opacity: 0.5; font-size: 0.9rem; }
+
+/* Premium Grid Cards */
+.premium-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 30px; }
+.nav-card {
+    padding: 20px; background: rgba(255,255,255,0.03);
+    border: 1px solid var(--glass-border); border-radius: 20px;
+    display: flex; align-items: center; gap: 20px;
+    transition: 0.3s; cursor: pointer;
 }
+.nav-card:hover { background: rgba(255,255,255,0.1); border-color: var(--gold); transform: translateX(5px); }
+.card-icon { font-size: 1.5rem; }
 
-// Text Sentiment Logic (Client-side)
-function analyzeText() {
-    const text = document.getElementById('mood-text').value.toLowerCase();
-    if (!text) return alert('Edhavathu type pannunga bro/sis!');
-    
-    const positiveWords = ['happy', 'super', 'good', 'great', 'awesome', 'jolly', 'nalla', 'nalladhu'];
-    const negativeWords = ['sad', 'bad', 'angry', 'kovam', 'depressed', 'sogam', 'worst', 'mosam'];
-    
-    let score = 0;
-    const words = text.split(/\W+/);
-    
-    words.forEach(word => {
-        if (positiveWords.includes(word)) score++;
-        if (negativeWords.includes(word)) score--;
-    });
-
-    let detectedMood = 'neutral';
-    if (score > 0) detectedMood = 'happy';
-    if (score < 0) detectedMood = 'sad';
-    
-    saveAndShowResult(detectedMood, 'text');
+/* Camera UI */
+.camera-frame {
+    width: 250px; height: 250px; margin: 0 auto;
+    position: relative; border-radius: 20px; overflow: hidden;
+    border: 1px solid var(--glass-border);
 }
+#video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-// Save & Show Result (Using LocalStorage)
-function saveAndShowResult(moodStr, source) {
-    let mood = moodStr === 'happy' ? 'happy' : (moodStr === 'sad' ? 'sad' : (moodStr === 'angry' ? 'angry' : 'neutral'));
-    
-    // Save to LocalStorage
-    let history = JSON.parse(localStorage.getItem('moodAppHistory')) || [];
-    history.push({ date: new Date().toLocaleDateString(), mood: mood });
-    localStorage.setItem('moodAppHistory', JSON.stringify(history));
-
-    const info = moodData[mood];
-    document.getElementById('detected-mood').innerText = `${mood.toUpperCase()} ${info.emoji}`;
-    document.getElementById('quote').innerText = `"${info.quote}"`;
-    document.getElementById('song').innerText = info.song;
-    
-    navigate('result-screen');
+.scanner-glow {
+    position: absolute; top: 0; width: 100%; height: 2px;
+    background: var(--gold); box-shadow: 0 0 20px var(--gold);
+    animation: scan 2s infinite linear; z-index: 5;
 }
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-// Chart.js History Logic
-function loadHistory() {
-    navigate('history-screen');
-    let history = JSON.parse(localStorage.getItem('moodAppHistory')) || [];
-    
-    const moodCounts = { happy: 0, sad: 0, angry: 0, neutral: 0 };
-    history.forEach(item => { if(moodCounts[item.mood] !== undefined) moodCounts[item.mood]++; });
+.corner { position: absolute; width: 20px; height: 20px; border: 2px solid var(--gold); z-index: 10; }
+.tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+.tr { top: 10px; right: 10px; border-left: 0; border-bottom: 0; }
+.bl { bottom: 10px; left: 10px; border-right: 0; border-top: 0; }
+.br { bottom: 10px; right: 10px; border-left: 0; border-top: 0; }
 
-    const ctx = document.getElementById('moodChart').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-    
-    chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Happy', 'Sad', 'Angry', 'Neutral'],
-            datasets: [{
-                data: [moodCounts.happy, moodCounts.sad, moodCounts.angry, moodCounts.neutral],
-                backgroundColor: ['#8b5cf6', '#0ea5e9', '#ef4444', '#94a3b8'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: 'white'
-                    }
-                }
-            }
-        }
-    });
+/* Buttons */
+.btn-royal {
+    background: linear-gradient(45deg, var(--royal-purple), var(--neon-blue));
+    color: white; border: none; padding: 15px; border-radius: 15px;
+    font-weight: 600; cursor: pointer; margin-top: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;
 }
+.btn-royal:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(106, 17, 203, 0.4); }
+
+.btn-ghost { background: transparent; border: 1px solid var(--glass-border); color: white; padding: 12px; border-radius: 15px; margin-top: 10px; cursor: pointer; }
+
+/* Result Aura */
+.aura-display { position: relative; width: 150px; height: 150px; margin: 30px auto; display: flex; align-items: center; justify-content: center; }
+.aura-circle {
+    position: absolute; width: 100%; height: 100%;
+    border: 2px solid var(--gold); border-radius: 50%;
+    animation: rotate 4s infinite linear; box-shadow: 0 0 20px var(--gold);
+}
+#detected-mood { font-size: 3rem; z-index: 10; }
+
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.chart-box { padding: 15px; background: rgba(0,0,0,0.2); border-radius: 20px; height: 250px; }
