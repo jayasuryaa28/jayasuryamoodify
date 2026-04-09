@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moodify - 3D AI Mood Detector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moodify 3D - AI Mood Detector</title>
     
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,7 +20,7 @@
 
     <div class="app-container" data-tilt data-tilt-glare data-tilt-max-glare="0.2" data-tilt-max="3" data-tilt-speed="400">
         <header>
-            <h2>✨ Moodify 3D</h2>
+            <h2 class="glow-text">✨ Moodify 3D</h2>
             <button id="theme-toggle" class="btn-3d-circle">🌙</button>
         </header>
 
@@ -46,10 +46,10 @@
             <h3 class="glow-text">Face Emotion Detection</h3>
             <div class="video-wrapper">
                 <div class="video-container">
-                    <video id="video" width="300" height="300" autoplay muted></video>
-                </div>
+                    <video id="video" autoplay muted playsinline></video>
+                    </div>
             </div>
-            <p id="cam-status" class="status-badge">Loading AI models... Wait pannunga</p>
+            <p id="cam-status" class="status-badge">AI Models Load aagala. Refresh pannunga.</p>
             <button class="btn btn-3d outline" onclick="navigate('home-screen'); stopVideo();">
                 <span class="btn-content">⬅️ Back</span>
             </button>
